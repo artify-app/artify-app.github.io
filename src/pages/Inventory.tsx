@@ -3,7 +3,7 @@ import { Plus, Pencil, Trash2, AlertTriangle, Download, Upload, Minus, Search } 
 import Papa from 'papaparse'
 import { useStore, uid } from '../lib/store'
 import { downloadText, readFileText } from '../lib/csv'
-import { Button, Card, Input, Field, Modal, Table, Th, Td, PageHeader, ConfirmModal, EmptyState, Badge, Textarea, cx } from '../components/ui'
+import { Button, Card, Input, Field, Modal, Table, Th, Td, PageHeader, ConfirmModal, EmptyState, Badge, Textarea, Toggle, cx } from '../components/ui'
 import type { InventoryItem } from '../lib/types'
 
 export default function Inventory() {
@@ -28,11 +28,11 @@ export default function Inventory() {
   const [edit, setEdit] = useState<InventoryItem | null>(null)
   const [del, setDel] = useState<InventoryItem | null>(null)
   const items = useMemo(() => data.inventory.filter((i) => !q || i.name.toLowerCase().includes(q.toLowerCase())).sort((a, b) => a.name.localeCompare(b.name, 'mk')), [data.inventory, q])
-  const low = data.inventory.filter((i) => i.quantity <= i.low_stock_threshold)
+  const low = data.inventory.filter((i) => i.tracked !== false && i.quantity <= i.low_stock_threshold)
   const adjust = (i: InventoryItem, d: number) => {
     const q = Math.max(0, i.quantity + d)
     void upsert('inventory', { ...i, quantity: q })
-    if (d < 0 && q === i.low_stock_threshold) toast(`⚠️ ${i.name} стигна до границата (${q} ${i.unit})`, 'err')
+    if (i.tracked !== false && d < 0 && q === i.low_stock_threshold) toast(`⚠️ ${i.name} стигна до границата (${q} ${i.unit})`, 'err')
   }
 
   return (
@@ -56,10 +56,11 @@ export default function Inventory() {
             <thead><tr><Th>Ставка</Th><Th right>Количина</Th><Th>Единица</Th><Th right>Аларм под</Th><Th>Белешки</Th><Th right>Акции</Th></tr></thead>
             <tbody>
               {items.map((i) => {
-                const isLow = i.quantity <= i.low_stock_threshold
+                const tracked = i.tracked !== false
+                const isLow = tracked && i.quantity <= i.low_stock_threshold
                 return (
-                  <tr key={i.id} className="hover:bg-surface-2/60">
-                    <Td className="font-semibold">{i.name} {isLow && <Badge tone={i.quantity === 0 ? 'bad' : 'warn'} className="ml-2">{i.quantity === 0 ? 'Нема' : 'Малку'}</Badge>}</Td>
+                  <tr key={i.id} className={cx('hover:bg-surface-2/60', !tracked && 'opacity-60')}>
+                    <Td className="font-semibold">{i.name} {isLow && <Badge tone={i.quantity === 0 ? 'bad' : 'warn'} className="ml-2">{i.quantity === 0 ? 'Нема' : 'Малку'}</Badge>}{!tracked && <Badge tone="neutral" className="ml-2">Не се следи</Badge>}</Td>
                     <Td right>
                       <div className="inline-flex items-center gap-1">
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => adjust(i, -1)}><Minus size={14} /></Button>
@@ -68,7 +69,7 @@ export default function Inventory() {
                       </div>
                     </Td>
                     <Td className="text-ink-2">{i.unit}</Td>
-                    <Td right className="text-ink-2">{i.low_stock_threshold}</Td>
+                    <Td right className="text-ink-2">{tracked ? i.low_stock_threshold : '—'}</Td>
                     <Td className="text-ink-3 text-xs max-w-[240px] truncate">{i.notes}</Td>
                     <Td right><div className="inline-flex gap-0.5"><Button variant="ghost" size="icon" onClick={() => setEdit({ ...i })}><Pencil size={16} /></Button><Button variant="ghost" size="icon" className="hover:text-bad" onClick={() => setDel(i)}><Trash2 size={16} /></Button></div></Td>
                   </tr>
@@ -84,7 +85,8 @@ export default function Inventory() {
             <Field label="Име" className="col-span-2"><Input value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} placeholder="пр. Рамка 30x40 црна" autoFocus /></Field>
             <Field label="Количина"><Input type="number" min={0} value={edit.quantity} onChange={(e) => setEdit({ ...edit, quantity: Number(e.target.value) || 0 })} /></Field>
             <Field label="Единица"><Input value={edit.unit} onChange={(e) => setEdit({ ...edit, unit: e.target.value })} /></Field>
-            <Field label="Аларм кога ќе падне под" className="col-span-2"><Input type="number" min={0} value={edit.low_stock_threshold} onChange={(e) => setEdit({ ...edit, low_stock_threshold: Number(e.target.value) || 0 })} /></Field>
+            <div className="col-span-2"><Toggle checked={edit.tracked !== false} onChange={(v) => setEdit({ ...edit, tracked: v })} label="Следи залиха (известувања кога е при крај)" /></div>
+            {edit.tracked !== false && <Field label="Аларм кога ќе падне под" className="col-span-2"><Input type="number" min={0} value={edit.low_stock_threshold} onChange={(e) => setEdit({ ...edit, low_stock_threshold: Number(e.target.value) || 0 })} /></Field>}
             <Field label="Белешки" className="col-span-2"><Textarea value={edit.notes} onChange={(e) => setEdit({ ...edit, notes: e.target.value })} placeholder="добавувач, цена…" /></Field>
           </div>
         )}

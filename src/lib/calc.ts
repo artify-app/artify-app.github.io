@@ -176,7 +176,7 @@ export function insights(data: AppData): Insight[] {
   const nextM = String(((now.getMonth() + 1) % 12) + 1).padStart(2, '0')
   const names = ['јануари', 'февруари', 'март', 'април', 'мај', 'јуни', 'јули', 'август', 'септември', 'октомври', 'ноември', 'декември']
   if (bestM === nextM) out.push({ title: `Сезона наскоро`, text: `${names[parseInt(bestM, 10) - 1]} историски е најсилниот месец (${bestN} нарачки). Подготви материјали и реклами на време.`, tone: 'info' })
-  const low = data.inventory.filter((i) => i.quantity <= i.low_stock_threshold)
+  const low = data.inventory.filter((i) => i.tracked !== false && i.quantity <= i.low_stock_threshold)
   if (low.length) out.push({ title: `${low.length} ставки при крај на залиха`, text: low.map((i) => i.name).slice(0, 4).join(', ') + (low.length > 4 ? '…' : ''), tone: 'warn' })
   return out.slice(0, 5)
 }

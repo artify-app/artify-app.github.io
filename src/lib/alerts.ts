@@ -13,8 +13,9 @@ export function computeAlerts(data: AppData, now = new Date()): Alert[] {
   const cur = data.settings.currency
   const days = (d: string) => differenceInCalendarDays(now, parseISO(d))
 
-  const outOf = data.inventory.filter((i) => i.quantity <= 0 && i.low_stock_threshold > 0)
-  const low = data.inventory.filter((i) => i.quantity > 0 && i.quantity <= i.low_stock_threshold)
+  const tracked = data.inventory.filter((i) => i.tracked !== false)
+  const outOf = tracked.filter((i) => i.quantity <= 0 && i.low_stock_threshold > 0)
+  const low = tracked.filter((i) => i.quantity > 0 && i.quantity <= i.low_stock_threshold)
   if (outOf.length) out.push({ id: 'stock-out', tone: 'bad', title: `Нема залиха: ${outOf.length} ${outOf.length === 1 ? 'ставка' : 'ставки'}`, text: outOf.map((i) => i.name).join(', '), link: '/inventory', linkLabel: 'Отвори залиха' })
   if (low.length) out.push({ id: 'stock-low', tone: 'warn', title: `При крај на залиха: ${low.length} ${low.length === 1 ? 'ставка' : 'ставки'}`, text: low.map((i) => `${i.name} (${i.quantity} ${i.unit})`).join(', '), link: '/inventory', linkLabel: 'Отвори залиха' })
 

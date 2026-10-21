@@ -59,6 +59,7 @@ export interface InventoryItem {
   unit: string
   low_stock_threshold: number
   notes: string
+  tracked?: boolean // false = не се следи залиха, нема известувања
 }
 
 export interface Expense { id: ID; date: string; amount: number; description: string; category: string }

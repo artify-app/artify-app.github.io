@@ -66,7 +66,7 @@ export default function OrderEditor() {
       if (inv && diff !== 0) {
         const q = Math.max(0, inv.quantity - diff)
         await upsert('inventory', { ...inv, quantity: q })
-        if (q <= inv.low_stock_threshold) toast(q === 0 ? `⚠️ ${inv.name}: залихата е на 0!` : `⚠️ ${inv.name}: остануваат уште ${q} ${inv.unit}`, 'err')
+        if (inv.tracked !== false && q <= inv.low_stock_threshold) toast(q === 0 ? `⚠️ ${inv.name}: залихата е на 0!` : `⚠️ ${inv.name}: остануваат уште ${q} ${inv.unit}`, 'err')
       }
     }
     for (const [iid, q] of prev) { const inv = data.inventory.find((i) => i.id === iid); if (inv && iid) await upsert('inventory', { ...inv, quantity: inv.quantity + q }) }
