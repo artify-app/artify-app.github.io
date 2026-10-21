@@ -1,14 +1,30 @@
-import { useMemo, useState } from 'react'
-import { Plus, Pencil, Trash2, AlertTriangle, Download, Minus, Search } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
+import { Plus, Pencil, Trash2, AlertTriangle, Download, Upload, Minus, Search } from 'lucide-react'
 import Papa from 'papaparse'
 import { useStore, uid } from '../lib/store'
-import { downloadText } from '../lib/csv'
+import { downloadText, readFileText } from '../lib/csv'
 import { Button, Card, Input, Field, Modal, Table, Th, Td, PageHeader, ConfirmModal, EmptyState, Badge, Textarea, cx } from '../components/ui'
 import type { InventoryItem } from '../lib/types'
 
 export default function Inventory() {
-  const { data, upsert, remove, toast } = useStore()
+  const { data, upsert, remove, toast, bulkUpsert } = useStore()
   const [q, setQ] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
+  const importCsv = async (f: File) => {
+    try {
+      const res = Papa.parse<Record<string, string>>(await readFileText(f), { header: true, skipEmptyLines: true })
+      const byName = new Map(data.inventory.map((i) => [i.name.trim().toLowerCase(), i]))
+      const rows: InventoryItem[] = []
+      for (const r of res.data) {
+        const name = (r.name ?? r.item ?? '').trim(); if (!name) continue
+        const ex = byName.get(name.toLowerCase())
+        const notes = (r.notes ?? '').trim().replace(/^Auto-created from product$/, '')
+        rows.push({ id: ex?.id ?? uid(), name, quantity: Number(r.quantity) || 0, unit: (r.unit || ex?.unit || 'пар.').replace(/^pcs$/, 'пар.'), low_stock_threshold: Number(r.low_stock_threshold ?? r.threshold) || ex?.low_stock_threshold || 0, notes: notes || ex?.notes || '' })
+      }
+      if (!rows.length) { toast('Не најдов ставки во фајлот (треба колона name)', 'err'); return }
+      await bulkUpsert('inventory', rows); toast(`Увезени ${rows.length} ставки`)
+    } catch (e) { toast('Не можам да го прочитам фајлот: ' + String(e), 'err') }
+  }
   const [edit, setEdit] = useState<InventoryItem | null>(null)
   const [del, setDel] = useState<InventoryItem | null>(null)
   const items = useMemo(() => data.inventory.filter((i) => !q || i.name.toLowerCase().includes(q.toLowerCase())).sort((a, b) => a.name.localeCompare(b.name, 'mk')), [data.inventory, q])
@@ -18,7 +34,9 @@ export default function Inventory() {
   return (
     <div className="space-y-4">
       <PageHeader title="Залиха" subtitle="Материјали и рамки — се одземаат автоматски кога ќе ги додадеш во нарачка." actions={<>
-        <Button onClick={() => downloadText('artify-zaliha.csv', Papa.unparse(data.inventory.map(({ name, quantity, unit, low_stock_threshold, notes }) => ({ name, quantity, unit, low_stock_threshold, notes }))), 'text/csv')}><Download size={16} /> CSV</Button>
+        <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void importCsv(f); e.target.value = '' }} />
+        <Button onClick={() => fileRef.current?.click()}><Upload size={16} /> Увези CSV</Button>
+        <Button onClick={() => downloadText('artify-zaliha.csv', Papa.unparse(data.inventory.map(({ name, quantity, unit, low_stock_threshold, notes }) => ({ name, quantity, unit, low_stock_threshold, notes }))), 'text/csv')}><Download size={16} /> Извези CSV</Button>
         <Button variant="primary" onClick={() => setEdit({ id: uid(), name: '', quantity: 0, unit: 'пар.', low_stock_threshold: 3, notes: '' })}><Plus size={16} /> Нова ставка</Button>
       </>} />
       {low.length > 0 && (
