@@ -90,5 +90,16 @@ export class SupabaseAdapter implements StorageAdapter {
   async saveSettings(s: Settings) {
     const { error } = await this.sb.from('settings').upsert({ id: 'settings', data: s, updated_at: new Date().toISOString() })
     if (error) throw error
+    // јавна копија само на логото и името — за екранот за најава пред да има сесија
+    await this.sb.from('brand').upsert({ id: 'brand', logo: s.logo, name: s.business_name || 'Artify', updated_at: new Date().toISOString() }).then(() => undefined, () => undefined)
   }
+}
+
+/** Reads the public brand (logo + name) without a session; null if the table is missing. */
+export async function fetchPublicBrand(): Promise<{ logo: string | null; name: string } | null> {
+  const sb = getSupabaseClient()
+  if (!sb) return null
+  const { data, error } = await sb.from('brand').select('logo,name').eq('id', 'brand').maybeSingle()
+  if (error || !data) return null
+  return { logo: (data.logo as string | null) ?? null, name: (data.name as string) || 'Artify' }
 }

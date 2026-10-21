@@ -32,3 +32,18 @@ alter table public.keepalive enable row level security;
 drop policy if exists "anon_read" on public.keepalive;
 create policy "anon_read" on public.keepalive for select to anon, authenticated using (true);
 insert into public.keepalive (id) values (1) on conflict do nothing;
+
+-- Јавна копија САМО на логото и името на бизнисот, за екранот за најава пред да има сесија.
+-- (Извршете го и ова ако шемата ја имате од порано.)
+create table if not exists public.brand (
+  id text primary key,
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  logo text,
+  name text,
+  updated_at timestamptz not null default now()
+);
+alter table public.brand enable row level security;
+drop policy if exists "brand_public_read" on public.brand;
+create policy "brand_public_read" on public.brand for select to anon, authenticated using (true);
+drop policy if exists "brand_owner_write" on public.brand;
+create policy "brand_owner_write" on public.brand for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());

@@ -115,3 +115,26 @@ input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: po
   main { padding: 0 !important; max-width: none !important }
   button { display: none !important }
 }
+
+/* ---------- екран за најава ---------- */
+.login-bg { background: radial-gradient(ellipse at top, var(--accent-soft), transparent 60%), var(--bg); }
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; pointer-events: none; animation: blob-drift 18s ease-in-out infinite; }
+.blob-1 { width: 420px; height: 420px; left: -120px; top: -120px; background: var(--accent); }
+.blob-2 { width: 360px; height: 360px; right: -100px; top: 20%; background: #2cbfa9; animation-delay: -6s; animation-duration: 22s; }
+.blob-3 { width: 320px; height: 320px; left: 30%; bottom: -160px; background: #f0605d; animation-delay: -12s; animation-duration: 26s; }
+.dark .blob { opacity: .28; }
+@keyframes blob-drift { 0%,100% { transform: translate(0,0) scale(1) } 33% { transform: translate(60px,-40px) scale(1.12) } 66% { transform: translate(-40px,50px) scale(.94) } }
+
+.login-card { animation: card-in .6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes card-in { from { opacity: 0; transform: translateY(24px) scale(.96) } to { opacity: 1; transform: none } }
+.login-stagger { animation: fade-up .5s ease-out both; }
+.logo-float { animation: logo-in .7s cubic-bezier(.2,.8,.2,1) both, logo-float 4s ease-in-out 1s infinite; filter: drop-shadow(0 10px 24px color-mix(in srgb, var(--accent) 35%, transparent)); }
+@keyframes logo-in { from { opacity: 0; transform: scale(.6) rotate(-8deg) } to { opacity: 1; transform: none } }
+@keyframes logo-float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+.anim-shake { animation: shake .45s; }
+.login-btn { position: relative; overflow: hidden; }
+.login-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%); transform: translateX(-120%); transition: transform .6s; }
+.login-btn:hover::after { transform: translateX(120%); }
+.login-done { animation: card-out .5s ease-in forwards; }
+@keyframes card-out { to { opacity: 0; transform: translateY(-16px) scale(.98) } }
+@media (prefers-reduced-motion: reduce) { .blob, .login-card, .login-stagger, .logo-float, .login-btn::after { animation: none !important; transition: none !important; } }

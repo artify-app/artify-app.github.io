@@ -2,6 +2,7 @@
 // за да се прикажат и пред вчитување на податоците (екран за најава, PIN) и во tab иконата.
 import { useSyncExternalStore } from 'react'
 import { useStore } from './store'
+import { fetchPublicBrand, getSupabaseConfig } from './storage/supabase'
 
 const KEY = 'artify:brand'
 export interface Brand { logo: string | null; name: string }
@@ -42,4 +43,7 @@ export function useBrand(): Brand {
   return c
 }
 
-export function initBrand() { applyBrandToDocument(cached) }
+export function initBrand() {
+  applyBrandToDocument(cached)
+  if (getSupabaseConfig()) void fetchPublicBrand().then((b) => { if (b) setBrand(b) })
+}
