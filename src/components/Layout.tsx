@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, ShoppingBag, PlusCircle, Users, Package, Boxes, BarChart3, Receipt, Briefcase, CalendarDays, Settings, Sun, Moon, Monitor, Menu, X, LogOut, Search, Cloud, HardDrive, Sparkles } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { useTheme, applyAccent } from '../lib/theme'
+import { useBrand } from '../lib/brand'
 import { cx, Button } from './ui'
 
 const NAV = [
@@ -19,8 +20,8 @@ const NAV = [
 ]
 
 export function Logo({ size = 36 }: { size?: number }) {
-  const { logo, business_name } = useStore((s) => s.data.settings)
-  if (logo) return <img src={logo} alt={business_name} style={{ height: size, maxWidth: size * 3 }} className="object-contain rounded-lg" />
+  const { logo, name } = useBrand()
+  if (logo) return <img src={logo} alt={name} style={{ height: size, maxWidth: size * 3 }} className="object-contain rounded-lg" />
   return (
     <span className="inline-flex items-center justify-center rounded-xl bg-accent text-white shadow-sm shadow-accent/40" style={{ width: size, height: size }}>
       <Sparkles size={size * 0.52} strokeWidth={2.4} />
@@ -44,7 +45,7 @@ export default function Layout() {
   const cycleTheme = () => setPref(pref === 'light' ? 'dark' : pref === 'dark' ? 'system' : 'light')
 
   const sidebar = (
-    <aside className="flex flex-col h-full w-64 bg-surface border-r border-line">
+    <aside className="flex flex-col h-full w-64 bg-surface border-r border-line print:hidden">
       <div className="flex items-center gap-3 px-5 h-16 border-b border-line">
         <Logo />
         <div className="min-w-0">
@@ -76,15 +77,15 @@ export default function Layout() {
 
   return (
     <div className="min-h-full flex">
-      <div className="hidden lg:block fixed inset-y-0 left-0 z-30">{sidebar}</div>
+      <div className="hidden lg:block print:hidden fixed inset-y-0 left-0 z-30">{sidebar}</div>
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 left-0 anim-fade-up">{sidebar}</div>
         </div>
       )}
-      <div className="flex-1 lg:pl-64 min-w-0 flex flex-col">
-        <header className="sticky top-0 z-20 h-16 flex items-center gap-2 px-4 sm:px-6 bg-bg/80 backdrop-blur border-b border-line/60">
+      <div className="flex-1 lg:pl-64 print:pl-0 min-w-0 flex flex-col">
+        <header className="print:hidden sticky top-0 z-20 h-16 flex items-center gap-2 px-4 sm:px-6 bg-bg/80 backdrop-blur border-b border-line/60">
           <button className="lg:hidden p-2 -ml-2 text-ink-2" onClick={() => setOpen(true)} aria-label="Мени"><Menu size={22} /></button>
           <GlobalSearch />
           <div className="ml-auto flex items-center gap-1">

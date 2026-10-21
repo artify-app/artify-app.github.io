@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Upload, PlusCircle, Package, Sparkles } from 'lucide-react'
+import { Upload, PlusCircle, Package } from 'lucide-react'
+import { Logo } from '../components/Layout'
 import { useStore, uid } from '../lib/store'
 import { readFileText } from '../lib/csv'
 import { Button, Card } from '../components/ui'
@@ -35,7 +36,7 @@ export default function Welcome() {
   return (
     <div className="max-w-2xl mx-auto py-10">
       <div className="text-center mb-8">
-        <span className="inline-flex w-16 h-16 rounded-2xl bg-accent text-white items-center justify-center shadow-lg shadow-accent/30 mb-4"><Sparkles size={30} /></span>
+        <div className="flex justify-center mb-4"><Logo size={64} /></div>
         <h1 className="text-3xl font-extrabold tracking-tight">Добредојде во Artify</h1>
         <p className="text-ink-3 mt-2">Твоја сопствена апликација за нарачки, клиенти и финансии. Нема месечни трошоци, податоците се твои.</p>
       </div>

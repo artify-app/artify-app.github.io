@@ -61,7 +61,7 @@ export default function SettingsPage() {
       <Card title={<span className="flex items-center gap-2"><ImageIcon size={16} className="text-accent" /> Бренд</span>}>
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-24 h-24 rounded-2xl border border-line bg-surface-2 flex items-center justify-center overflow-hidden"><Logo size={s.logo ? 80 : 44} /></div>
+            <div className="min-w-24 h-24 px-3 rounded-2xl border border-line bg-surface-2 flex items-center justify-center overflow-hidden"><Logo size={s.logo ? 72 : 44} /></div>
             <div className="flex flex-col gap-2">
               <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void onLogo(f); e.target.value = '' }} />
               <Button onClick={() => logoRef.current?.click()}><Upload size={16} /> Прикачи лого</Button>

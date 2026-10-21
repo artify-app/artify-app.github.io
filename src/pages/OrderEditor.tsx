@@ -6,6 +6,8 @@ import { buildClients, computeTotals, itemCostFor, nextOrderNo } from '../lib/ca
 import { money, todayISO, fmtDate } from '../lib/format'
 import { imageToDataUrl } from '../lib/csv'
 import { Button, Card, Field, Input, Select, Textarea, Badge, Toggle, ConfirmModal, Avatar, cx } from '../components/ui'
+import { Logo } from '../components/Layout'
+import { useBrand } from '../lib/brand'
 import type { Order, OrderItem, OrderStatus } from '../lib/types'
 
 function blank(orderNo: string): Order {
@@ -74,10 +76,15 @@ export default function OrderEditor() {
   }
 
   const cur = data.settings.currency
+  const brand = useBrand()
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="flex flex-wrap items-center gap-3 mb-5">
+      <div className="hidden print:flex items-center justify-between border-b border-line pb-4 mb-6">
+        <div className="flex items-center gap-3"><Logo size={44} /><div><p className="text-xl font-extrabold">{brand.name}</p><p className="text-xs text-ink-3">Потврда за нарачка</p></div></div>
+        <div className="text-right"><p className="font-mono font-bold">{o.order_no}</p><p className="text-xs text-ink-3">{fmtDate(o.order_date, 'd MMMM yyyy')}</p></div>
+      </div>
+      <div className="flex flex-wrap items-center gap-3 mb-5 print:hidden">
         <Button variant="ghost" size="icon" onClick={() => nav(-1)}><ArrowLeft size={18} /></Button>
         <div className="flex-1">
           <h1 className="text-2xl font-extrabold tracking-tight">{existing ? 'Уреди нарачка' : 'Нова нарачка'} <span className="font-mono text-base text-ink-3 font-semibold ml-2">{o.order_no}</span></h1>

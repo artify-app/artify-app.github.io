@@ -103,3 +103,15 @@ input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: po
 .recharts-text { fill: var(--ink-3); font-size: 11px }
 
 .num { font-variant-numeric: tabular-nums }
+
+@media print {
+  :root, .dark {
+    --bg: #fff; --surface: #fff; --surface-2: #f5f5f8; --line: #d9d9e3; --ink: #111; --ink-2: #444; --ink-3: #777;
+    --ok: #178a5b; --ok-soft: #e4f6ec; --warn: #b7791f; --warn-soft: #fcf1dc; --bad: #d13b3b; --bad-soft: #fde8e8; --accent-soft: #eeebff;
+    color-scheme: light;
+  }
+  body { background: #fff; color: #000 }
+  .shadow-card, .shadow-pop { box-shadow: none !important }
+  main { padding: 0 !important; max-width: none !important }
+  button { display: none !important }
+}
