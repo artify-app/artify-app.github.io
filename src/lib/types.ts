@@ -84,6 +84,7 @@ export interface Settings {
   dashboard_widgets: DashboardWidget[]
   hide_financials: boolean
   accent?: string
+  alerts_popup?: boolean
 }
 
 export interface AppData {

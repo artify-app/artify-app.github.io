@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode, type ButtonHTMLAttributes, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { X, Inbox, Loader2 } from 'lucide-react'
+import { createPortal } from 'react-dom'
 
 export function cx(...a: (string | false | null | undefined)[]) {
   return a.filter(Boolean).join(' ')
@@ -90,18 +91,19 @@ export function Modal({ open, onClose, title, children, width = 'max-w-lg', foot
     return () => { window.removeEventListener('keydown', h); document.body.style.overflow = '' }
   }, [open, onClose])
   if (!open) return null
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
       <div className={cx('relative w-full bg-surface border border-line rounded-t-3xl sm:rounded-3xl shadow-pop anim-pop max-h-[92vh] flex flex-col', width)}>
-        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0">
           <h3 className="font-bold text-lg tracking-tight">{title}</h3>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Затвори"><X size={18} /></Button>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Затвори го прозорецот"><X size={18} /></Button>
         </div>
-        <div className="px-5 pb-5 overflow-y-auto">{children}</div>
-        {footer && <div className="px-5 py-4 border-t border-line flex justify-end gap-2">{footer}</div>}
+        <div className="px-5 pb-5 overflow-y-auto min-h-0">{children}</div>
+        {footer && <div className="px-5 py-4 border-t border-line flex justify-end gap-2 shrink-0">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

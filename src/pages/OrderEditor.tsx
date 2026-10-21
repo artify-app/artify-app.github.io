@@ -63,7 +63,11 @@ export default function OrderEditor() {
       const diff = m.quantity - (prev.get(m.inventory_id) ?? 0)
       prev.delete(m.inventory_id)
       const inv = data.inventory.find((i) => i.id === m.inventory_id)
-      if (inv && diff !== 0) await upsert('inventory', { ...inv, quantity: Math.max(0, inv.quantity - diff) })
+      if (inv && diff !== 0) {
+        const q = Math.max(0, inv.quantity - diff)
+        await upsert('inventory', { ...inv, quantity: q })
+        if (q <= inv.low_stock_threshold) toast(q === 0 ? `⚠️ ${inv.name}: залихата е на 0!` : `⚠️ ${inv.name}: остануваат уште ${q} ${inv.unit}`, 'err')
+      }
     }
     for (const [iid, q] of prev) { const inv = data.inventory.find((i) => i.id === iid); if (inv && iid) await upsert('inventory', { ...inv, quantity: inv.quantity + q }) }
     setSaving(false)

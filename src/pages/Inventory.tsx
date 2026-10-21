@@ -29,7 +29,11 @@ export default function Inventory() {
   const [del, setDel] = useState<InventoryItem | null>(null)
   const items = useMemo(() => data.inventory.filter((i) => !q || i.name.toLowerCase().includes(q.toLowerCase())).sort((a, b) => a.name.localeCompare(b.name, 'mk')), [data.inventory, q])
   const low = data.inventory.filter((i) => i.quantity <= i.low_stock_threshold)
-  const adjust = (i: InventoryItem, d: number) => void upsert('inventory', { ...i, quantity: Math.max(0, i.quantity + d) })
+  const adjust = (i: InventoryItem, d: number) => {
+    const q = Math.max(0, i.quantity + d)
+    void upsert('inventory', { ...i, quantity: q })
+    if (d < 0 && q === i.low_stock_threshold) toast(`⚠️ ${i.name} стигна до границата (${q} ${i.unit})`, 'err')
+  }
 
   return (
     <div className="space-y-4">

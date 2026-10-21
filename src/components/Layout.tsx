@@ -5,6 +5,7 @@ import { useStore } from '../lib/store'
 import { useTheme, applyAccent } from '../lib/theme'
 import { useBrand } from '../lib/brand'
 import { cx, Button } from './ui'
+import Notifications from './Notifications'
 
 const NAV = [
   { to: '/', label: 'Преглед', icon: LayoutDashboard, end: true },
@@ -89,6 +90,7 @@ export default function Layout() {
           <button className="lg:hidden p-2 -ml-2 text-ink-2" onClick={() => setOpen(true)} aria-label="Мени"><Menu size={22} /></button>
           <GlobalSearch />
           <div className="ml-auto flex items-center gap-1">
+            <Notifications />
             <Button variant="ghost" size="icon" onClick={cycleTheme} title={`Тема: ${pref === 'light' ? 'светла' : pref === 'dark' ? 'темна' : 'системска'}`} aria-label="Смени тема"><ThemeIcon size={18} /></Button>
             <div className="hidden sm:block"><Button variant="primary" size="sm" onClick={() => nav('/orders/new')}><PlusCircle size={16} /> Нова нарачка</Button></div>
           </div>

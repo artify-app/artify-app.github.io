@@ -93,9 +93,10 @@ export default function SettingsPage() {
       </Card>
 
       <Card title={<span className="flex items-center gap-2"><LayoutDashboard size={16} className="text-accent" /> Преглед (почетна)</span>} subtitle="Кои делови да се прикажуваат">
-        <div className="grid sm:grid-cols-2 gap-3">
+        <div className="grid sm:grid-cols-2 gap-3 mb-4">
           {WIDGETS.map((w) => <Toggle key={w.key} checked={s.dashboard_widgets.includes(w.key)} onChange={(v) => void saveSettings({ dashboard_widgets: v ? [...s.dashboard_widgets, w.key] : s.dashboard_widgets.filter((x) => x !== w.key) })} label={w.label} />)}
         </div>
+        <Toggle checked={s.alerts_popup !== false} onChange={(v) => void saveSettings({ alerts_popup: v })} label="Известување на сред екран при отворање (залиха, неплатени, нацрти…)" />
       </Card>
 
       <Card title={<span className="flex items-center gap-2"><Lock size={16} className="text-accent" /> PIN заклучување</span>} subtitle="Заштита ако некој друг го користи овој компјутер. Бара PIN при отворање и по 15 минути неактивност.">
