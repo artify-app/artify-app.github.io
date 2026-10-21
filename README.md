@@ -2,7 +2,7 @@
 
 Сопствена, бесплатна замена за base44 апликацијата: нарачки, клиенти, продукти и трошоци, залиха, статистика, рекламни трошоци, freelance проекти и календар. Светла/темна тема, сопствено лого, работи на телефон.
 
-**Live:** https://stefandavcev.github.io/artify/
+**Live:** https://artify-app.github.io/
 
 ## Како функционира
 
@@ -31,7 +31,7 @@
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173/artify/
+npm run dev      # http://localhost:5173/
 npm run build    # dist/
 ```
 
