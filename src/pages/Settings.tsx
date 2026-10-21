@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { Upload, Download, Trash2, Cloud, HardDrive, Palette, Image as ImageIcon, LayoutDashboard, ShieldCheck, Sun, Moon, Monitor, CloudUpload, Info } from 'lucide-react'
+import { Upload, Download, Trash2, Cloud, HardDrive, Palette, Image as ImageIcon, LayoutDashboard, ShieldCheck, Sun, Moon, Monitor, CloudUpload, Info, Lock } from 'lucide-react'
+import { hasPin, setPin as savePin, clearPin, verifyPin } from '../lib/pin'
 import { useStore } from '../lib/store'
 import { useTheme } from '../lib/theme'
 import { getSupabaseConfig } from '../lib/storage/supabase'
@@ -26,6 +27,18 @@ export default function SettingsPage() {
   const [key, setKey] = useState(cfg?.anonKey ?? '')
   const [migrating, setMigrating] = useState(false)
   const [name, setName] = useState(s.business_name)
+  const [pinOn, setPinOn] = useState(hasPin)
+  const [pin1, setPin1] = useState(''); const [pin2, setPin2] = useState(''); const [oldPin, setOldPin] = useState('')
+  const applyPin = async () => {
+    if (!/^\d{4,6}$/.test(pin1)) { toast('PIN-от треба да има 4–6 цифри', 'err'); return }
+    if (pin1 !== pin2) { toast('PIN-овите не се исти', 'err'); return }
+    if (pinOn && !(await verifyPin(oldPin))) { toast('Стариот PIN не е точен', 'err'); return }
+    await savePin(pin1); setPinOn(true); setPin1(''); setPin2(''); setOldPin(''); toast('PIN е поставен')
+  }
+  const removePin = async () => {
+    if (!(await verifyPin(oldPin))) { toast('PIN-от не е точен', 'err'); return }
+    clearPin(); setPinOn(false); setOldPin(''); toast('PIN е отстранет')
+  }
 
   const onLogo = async (f: File) => { try { await saveSettings({ logo: await imageToDataUrl(f, 400) }); toast('Логото е поставено') } catch { toast('Сликата не може да се вчита', 'err') } }
   const onBackupFile = async (f: File) => {
@@ -83,6 +96,20 @@ export default function SettingsPage() {
         <div className="grid sm:grid-cols-2 gap-3">
           {WIDGETS.map((w) => <Toggle key={w.key} checked={s.dashboard_widgets.includes(w.key)} onChange={(v) => void saveSettings({ dashboard_widgets: v ? [...s.dashboard_widgets, w.key] : s.dashboard_widgets.filter((x) => x !== w.key) })} label={w.label} />)}
         </div>
+      </Card>
+
+      <Card title={<span className="flex items-center gap-2"><Lock size={16} className="text-accent" /> PIN заклучување</span>} subtitle="Заштита ако некој друг го користи овој компјутер. Бара PIN при отворање и по 15 минути неактивност.">
+        <div className="flex items-center gap-2 mb-4"><Badge tone={pinOn ? 'ok' : 'neutral'}>{pinOn ? 'Вклучено' : 'Исклучено'}</Badge></div>
+        <div className="grid sm:grid-cols-3 gap-3 max-w-xl">
+          {pinOn && <Field label="Тековен PIN"><Input type="password" inputMode="numeric" value={oldPin} onChange={(e) => setOldPin(e.target.value)} /></Field>}
+          <Field label={pinOn ? 'Нов PIN' : 'PIN (4–6 цифри)'}><Input type="password" inputMode="numeric" value={pin1} onChange={(e) => setPin1(e.target.value)} /></Field>
+          <Field label="Повтори"><Input type="password" inputMode="numeric" value={pin2} onChange={(e) => setPin2(e.target.value)} /></Field>
+        </div>
+        <div className="flex gap-2 mt-3">
+          <Button variant="primary" onClick={() => void applyPin()}><Lock size={16} /> {pinOn ? 'Промени PIN' : 'Вклучи PIN'}</Button>
+          {pinOn && <Button variant="ghost" onClick={() => void removePin()}>Исклучи PIN</Button>}
+        </div>
+        <p className="text-[11px] text-ink-3 mt-3">PIN-от важи само за овој прелистувач. Ако го заборавиш: избриши ги податоците на сајтот од прелистувачот и увези backup.</p>
       </Card>
 
       <Card title={<span className="flex items-center gap-2"><ShieldCheck size={16} className="text-accent" /> Backup и податоци</span>} subtitle="Целата база во еден JSON фајл — чувај копија на Google Drive од време на време.">

@@ -17,6 +17,7 @@ import CalendarPage from './pages/Calendar'
 import SettingsPage from './pages/Settings'
 import Login from './pages/Login'
 import Welcome from './pages/Welcome'
+import PinLock from './components/PinLock'
 
 export default function App() {
   const init = useStore((s) => s.init)
@@ -30,6 +31,7 @@ export default function App() {
   const empty = data.orders.length === 0 && data.products.length === 0
 
   return (
+    <PinLock>
     <HashRouter>
       <Routes>
         <Route element={<Layout />}>
@@ -50,6 +52,7 @@ export default function App() {
         </Route>
       </Routes>
     </HashRouter>
+    </PinLock>
   )
 }
 
